@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Viewer</title>
+    <title>YouTube Viewer with reCAPTCHA</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,6 +27,8 @@
             max-width: 900px;
         }
     </style>
+    <!-- reCAPTCHAのAPIキーをここに追加 -->
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdXSFcqAAAAAPImX1_8syuNsxdZF1pOgUR37pga"></script>
 </head>
 <body>
 
@@ -35,9 +37,13 @@
     <button onclick="loadVideo()">Load Video</button>
     <br>
     <iframe id="youtube-player" src="https://www.youtube.com/embed/" frameborder="0" allowfullscreen></iframe>
+    <br><br>
+    <!-- SubmitボタンにreCAPTCHAの実行を紐付け -->
+    <button onclick="onClick(event)">Submit with reCAPTCHA</button>
 </div>
 
 <script>
+    // YouTube動画を読み込む関数
     function loadVideo() {
         const url = document.getElementById("youtube-url").value;
         const videoId = extractVideoID(url);
@@ -45,10 +51,20 @@
         iframe.src = `https://www.youtube.com/embed/${videoId}`;
     }
 
+    // YouTubeのURLから動画IDを抽出する関数
     function extractVideoID(url) {
         const regExp = /^.*(youtu.be\/|v\/|\/u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = url.match(regExp);
         return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    // reCAPTCHAのトークンを取得して表示する関数
+    function onClick(e) {
+        e.preventDefault();
+        grecaptcha.enterprise.ready(async () => {
+            const token = await grecaptcha.enterprise.execute('6LdXSFcqAAAAAPImX1_8syuNsxdZF1pOgUR37pga', {action: 'LOGIN'});
+            console.log('reCAPTCHA token:', token);  // サーバーに送信するか、次の処理へ利用
+        });
     }
 </script>
 
